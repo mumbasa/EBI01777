@@ -1,0 +1,13 @@
+[Unit]
+Description=EBI01777 TEST
+
+[Service]
+ExecStart=/usr/bin/java -jar /usr/share/EBI01777/target/EBI01777-0.0.1-SNAPSHOT.jar
+StandardOutput=file:/var/log/shrinq.out.txt
+StandardError=file:/var/log/shringq.err.txt
+Type=simple
+WorkingDirectory=/usr/share/EBI01777
+
+[Install]
+WantedBy=multi-user.target
+

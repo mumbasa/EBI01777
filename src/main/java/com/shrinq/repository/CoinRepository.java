@@ -23,7 +23,7 @@ public class CoinRepository {
 
 	public Object solveProblemFormMapInFile(int startXPosition, int startYPosition, int targetXPosition, int targetYPosition) {
 
-		Treasure[][] treasures = (Treasure[][]) ReadObjectFromFile("/home/bryan/map.dat");
+		Treasure[][] treasures = (Treasure[][]) ReadObjectFromFile("/home/map.dat");
 		for (int x = 0; x < treasures.length; x++) {
 
 			for (int y = 0; y < treasures[x].length; y++) {
@@ -37,8 +37,11 @@ public class CoinRepository {
 		TreasureMap map = new TreasureMap();
 		map.setTreasures(treasures);
 		map.setStartXPosition(startXPosition);
+		//translating to Y axis proper
 		map.setStartYPosition((treasures.length - 1) - startYPosition);
 		map.setTargetXPosition(targetXPosition);
+
+		//translating to Y axis proper
 		map.setTargetYPosition((treasures.length - 1) - targetYPosition);
 		if (map.getMapValidity()) {
 			try {
@@ -134,7 +137,7 @@ public class CoinRepository {
     }
 	
 	public static void main(String[] args) {
-		Treasure[][] mapper = (Treasure[][]) ReadObjectFromFile("/home/bryan/map.dat");
+		Treasure[][] mapper = (Treasure[][]) ReadObjectFromFile("/home/map.dat");
 		System.err.println(mapper[0][0].getAmount());
 		
 		

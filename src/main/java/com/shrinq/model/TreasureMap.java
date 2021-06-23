@@ -17,26 +17,13 @@ public class TreasureMap {
 	private int targetYPosition;
 	private Result result;
 
-
 	public boolean getMapValidity() {
 		if (this.startXPosition <= this.targetXPosition & this.startYPosition >= this.targetYPosition) {
 			return true;
 
 		}
-		
-		// making sure destination has no 2 rocks surronding it
-		/*
-		 * else
-		 * if(treasures[targetXPosition-1][targetYPosition].getType().contains("rock")&!
-		 * treasures[targetXPosition-2][targetYPosition].getType().contains("bomb") &
-		 * treasures[targetXPosition-1][targetYPosition-1].getType().contains("rock")&!
-		 * treasures[targetXPosition-2][targetYPosition-1].getType().contains("bomb") &
-		 * treasures[targetXPosition][targetYPosition-1].getType().contains("rock")&!
-		 * treasures[targetXPosition][targetYPosition-2].getType().contains("bomb")) {
-		 * return false;
-		 * 
-		 * }
-		 */else {
+
+		else {
 
 			return false;
 		}
@@ -90,135 +77,177 @@ public class TreasureMap {
 		long totalY2 = 0;
 		long totalx = 0;
 		long totalx2 = 0;
+		if (treasures[currentY][currentX].getType().contains("bomb")) {
+			System.err.println("blasting");
+			blastTransform(currentX, currentY);
+			return bombNextMaximumNeighbour(currentX, currentY);
 
-		// get summation of row sum
-		for (int x = currentX; x < targetXPosition; x++) {
-			Treasure t = treasures[currentY][x];
+		} else {
+			// get summation of row sum
+			for (int x = currentX; x < targetXPosition; x++) {
+				Treasure t = treasures[currentY][x];
+				if (t.getType().equalsIgnoreCase("coin")) {
+					totalx += treasures[currentY][x].getAmount();
+				} else if (t.getType().equalsIgnoreCase("bomb")) {
+
+				} else if (t.getType().equalsIgnoreCase("rock")) {
+					break;
+				}
+			}
+
+			// if end of x axis get the y zxis sum
+			if (currentX + 1 <= targetXPosition) {
+				for (int y = currentY; y >= targetYPosition; y--) {
+					if (treasures[y][currentX + 1].getType().equalsIgnoreCase("coin")) {
+						totalx2 += treasures[y][currentX + 1].getAmount();
+
+					} else if (treasures[y][currentX + 1].getType().equalsIgnoreCase("bomb")) {
+					} else {
+
+						break;
+					}
+				}
+			}
+
+			// getting summation of y axis
+			for (int x = currentX; x < targetXPosition; x++) {
+				Treasure treasureT = treasures[currentY][x];
+				if (treasureT.getType().equalsIgnoreCase("coin")) {
+					totalY += treasureT.getAmount();
+				} else if (treasureT.getType().equalsIgnoreCase("bomb")) {
+				} else {
+
+					break;
+				}
+
+			}
+
+			// getting summation of the x axis values of current value
+			if (currentY - 1 >= targetYPosition) {
+
+				for (int y = currentY - 1; y > targetYPosition; y--) {
+
+					if (treasures[y - 1][currentX].getType().equalsIgnoreCase("coin")) {
+						totalY2 += treasures[y][currentX].getAmount();
+
+					} else if (treasures[y][currentX].getType().equalsIgnoreCase("bomb")) {
+					} else {
+						break;
+					}
+
+				}
+
+			}
+			char data = Math.max(totalx2, totalx) > Math.max(totalY2, totalY) ? 'x' : 'y';
+			return data;
+		}
+	}
+
+	public void blastTransform(int xIndex, int yIndex) {
+
+		for (int x = xIndex; x <= xIndex + 1; x++) {
+			for (int y = yIndex; y >= yIndex - 1; y--) {
+				try {
+					Treasure treasureNow = treasures[y][x];
+					if (treasureNow.getType().equals("rock")) {
+						System.err.println("changing rock to coin");
+
+						treasureNow.setAmount(0);
+						treasureNow.setType("coin");
+						treasures[y][x] = treasureNow;
+
+					}
+
+				} catch (ArrayIndexOutOfBoundsException e) {
+					// TODO: handle exception
+					
+					return;
+				}
+
+			}
+
+		}
+
+	}
+
+	public char bombNextMaximumNeighbour(int xIndex, int yIndex) {
+		int xAxisSum = 0;
+		int yAxisSum = 0;
+
+		for (int x = xIndex; x < targetXPosition; x++) {
+
+			Treasure t = treasures[yIndex][x];
 			if (t.getType().equalsIgnoreCase("coin")) {
-				totalx += treasures[currentY][x].getAmount();
+				xAxisSum += t.getAmount();
 			} else if (t.getType().equalsIgnoreCase("bomb")) {
-				totalx += 0;
+
 			} else if (t.getType().equalsIgnoreCase("rock")) {
 
-				totalx += getRockyNeighbours(currentY, currentX);
-
-			}
-		}
-
-		// if end of x axis get the y zxis sum
-		if (currentX + 1 <= targetXPosition) {
-			for (int y = currentY; y >= targetYPosition; y--) {
-				if (treasures[y][currentX + 1].getType().equalsIgnoreCase("coin")) {
-					totalx2 += treasures[y][currentX + 1].getAmount();
-
-				} else if (treasures[y][currentX + 1].getType().equalsIgnoreCase("bomb")) {
-					totalx2 += 0;
-				} else {
-					totalx2 += getRockyYNeighbours(currentX, currentY);
-				}
-			}
-		}
-
-		// getting summation of y axis
-		for (int x = currentX; x < targetXPosition; x++) {
-
-			if (treasures[currentY - 1][x].getType().equalsIgnoreCase("coin")) {
-				totalY += treasures[currentY - 1][x].getAmount();
-			} else if (treasures[currentY - 1][x].getType().equalsIgnoreCase("bomb")) {
-				totalY += 0;
-			} else {
-				totalY += getRockyYNeighbours(currentX, currentY);
-
+				break;
 			}
 
 		}
 
-		// getting summation of the x axis values of current value
-		if (currentY - 1 >= targetYPosition) {
+		for (int y = yIndex; y < targetYPosition; y++) {
+			Treasure t = treasures[y][xIndex];
+			if (t.getType().equalsIgnoreCase("coin")) {
+				yAxisSum += t.getAmount();
+			} else if (t.getType().equalsIgnoreCase("bomb")) {
 
-			for (int y = currentY; y > targetYPosition; y--) {
+			} else if (t.getType().equalsIgnoreCase("rock")) {
 
-				if (treasures[y - 1][currentX].getType().equalsIgnoreCase("coin")
-						| treasures[y - 1][currentX].getType().equalsIgnoreCase("bomb")) {
-					totalY2 += treasures[y - 1][currentX].getAmount();
-				} else {
-					totalY2 += getRockyNeighbours(currentX, currentY);
-				}
-
+				break;
 			}
 		}
-
-		char data = Math.max(totalx2, totalx) > Math.max(totalY2, totalY) ? 'x' : 'y';
-
-		return data;
-	}
-
-	public int getRockyNeighbours(int xIndex, int yIndex) {
-		int rocks = 0;
-		int bomb = 0;
-
-		for (int x = xIndex + 1; x < targetXPosition; x++) {
-			if (treasures[yIndex][x].getType().equals("rock")) {
-				rocks++;
-			} else if (treasures[yIndex][x].getType().equals("bomb")) {
-				bomb++;
-			}
-
-		}
-		if (rocks > bomb) {
-			return -100;
-		} else {
-			return 0;
-		}
-
-	}
-
-	public int getRockyYNeighbours(int xIndex, int yIndex) {
-		int rocks = 0;
-		int bomb = 0;
-
-		for (int y = yIndex ; y > targetYPosition; y--) {
-			if (treasures[y][xIndex].getType().equals("rock")) {
-				rocks++;
-			} else if (treasures[y][xIndex].getType().equals("bomb")) {
-				bomb++;
-			}
-
-		}
-		if (rocks > bomb) {
-			return -100;
-		}
-		
-		else {
-			return 0;
-		}
+		return xAxisSum > yAxisSum ? 'x' : 'y';
 
 	}
 
 	public Result getResult() {
 		result = new Result();
-		long maxCoins =0;
+		int currentXPosition = this.getStartXPosition();
+		int currentYPosition = this.getStartYPosition();
+
+		int translatedValueForY = (this.getTreasures().length - 1) - currentYPosition;
+//		String start = currentXPosition + "," + translatedValueForY;
+		List<Integer> startPoint = new ArrayList<Integer>();
+		startPoint.add(currentXPosition);
+		startPoint.add(translatedValueForY);
+		result.getPath().add(startPoint);
+		
+		long maxCoins = 0;
 		List<Character> movements = new ArrayList<Character>();
 		if (this.getMapValidity()) {
 
-			//assigning the the starting position
+			// assigning the the starting position
 			int currentX = this.getStartXPosition();
 			int currentY = this.getStartYPosition();
-			
-			//checking for the maximum values till destination is reached
+
+			// checking for the maximum values till destination is reached
 			while (currentY >= this.getTargetYPosition() | currentX <= this.getTargetXPosition()) {
 				char move = movement(currentX, currentY);
 				movements.add(move);
-				System.err.println(move);
+//				System.err.println(move);
+				List<Integer> coordindates = new ArrayList<Integer>();
+
 				if (move == 'x') {
 					if (currentX + 1 <= this.getTargetXPosition()) {
 
 						currentX++;
+						maxCoins += treasures[currentY][currentX].getAmount();
+						coordindates.add(currentX);
+						coordindates.add(translatedValueForY);
+						result.getPath().add(coordindates);
 
 					}
 				} else {
 					if (currentY >= this.getTargetYPosition()) {
-						--currentY;
+						currentY--;
+						translatedValueForY++;
+						maxCoins += treasures[currentY][currentX].getAmount();
+						coordindates.add(currentX);
+						coordindates.add(translatedValueForY);
+						result.getPath().add(coordindates);
 
 					}
 				}
@@ -227,43 +256,13 @@ public class TreasureMap {
 				}
 
 			}
-
-			int cx = this.getStartXPosition();
-			int cy = this.getStartYPosition();
-
-			int vy = (this.getTreasures().length - 1) - cy;
-			String start = cx + "," + vy;
-			List<Integer> startPoint = new ArrayList<Integer>();
-			startPoint.add(cx);
-			startPoint.add(vy);
-			result.getPath().add(startPoint);
-			System.out.println(start);
-
-			for (int i = 0; i < movements.size(); i++) {
-				if (movements.get(i) == 'x') {
-					cx++;
-
-				} else {
-					vy++;
-					cy--;
-				}
-				maxCoins += treasures[cy][cx].getAmount();
-				List<Integer> s = new ArrayList<Integer>();
-				s.add(cx);
-				s.add(vy);
-				result.getPath().add(s);
-
-				System.err.println(cx + "," + cy + "\t" + cx + "," + vy);
-			}
 		}
-		/*
-		 * System.err.println(treasures[0][1].getAmount() + "max " + (coins -
-		 * this.getTreasures()[this.getTargetYPosition()][this.getTargetXPosition()].
-		 * getAmount()));
-		 */
-		result.setCoins(maxCoins - this.getTreasures()[this.getTargetYPosition()][this.getTargetXPosition()].getAmount());
-	
+			
+
+			result.setCoins(
+				maxCoins - this.getTreasures()[this.getTargetYPosition()][this.getTargetXPosition()].getAmount());
+
 		return result;
 	}
-
+	
 }

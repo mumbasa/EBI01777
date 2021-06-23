@@ -23,7 +23,7 @@ public class CoinRepository {
 
 	public Object solveProblemFormMapInFile(int startXPosition, int startYPosition, int targetXPosition, int targetYPosition) {
 
-		Treasure[][] treasures = (Treasure[][]) ReadObjectFromFile("/home/map.dat");
+		Treasure[][] treasures = (Treasure[][]) ReadObjectFromFile("/home/bryan/map.dat");
 		for (int x = 0; x < treasures.length; x++) {
 
 			for (int y = 0; y < treasures[x].length; y++) {
@@ -61,13 +61,10 @@ public class CoinRepository {
 
 		Treasure[][] treasures = new Treasure[4][4];
 		int k = 0;
-		Random r = new Random();
-		int upper = 20;
+	
 		for (int x = 0; x < treasures.length; x++) {
 
 			for (int y = 0; y < treasures[x].length; y++) {
-				int counts = r.nextInt(upper);
-
 				k++;
 
 				Treasure t = new Treasure("coin", k);
@@ -100,7 +97,7 @@ public class CoinRepository {
 
 	}
 
-	public String WriteObjectToFile(Object serObj) {
+	public static String WriteObjectToFile(Object serObj) {
 
 		try {
 
@@ -137,40 +134,20 @@ public class CoinRepository {
     }
 	
 	public static void main(String[] args) {
-		Treasure[][] mapper = (Treasure[][]) ReadObjectFromFile("/home/map.dat");
-		System.err.println(mapper[0][0].getAmount());
+		Treasure[][] mapper = (Treasure[][]) ReadObjectFromFile("/home/bryan/map2.dat");
 		
 		
 		
-		Treasure[][] treasures = new Treasure[4][4];
-		int count = 0;
-		int k = 0;
-		Random r = new Random();
-		int upper = 20;
-		for (int x = 0; x < treasures.length; x++) {
-
-			for (int y = 0; y < treasures[x].length; y++) {
-				int counts = r.nextInt(upper);
-
-				k++;
-
-				Treasure t = new Treasure("coin", k);
-				treasures[x][y] = t;
-				// d[x][y]=count;
-				System.err.print(counts + " ");
-
-			}
-			System.err.println();
-
-		}
 
 		TreasureMap map = new TreasureMap();
-		map.setTreasures(treasures);
+		map.setTreasures(mapper);
 		map.setStartXPosition(0);
 		map.setStartYPosition(3);
 		map.setTargetXPosition(3);
 		map.setTargetYPosition(0);
-		map.getResult();
+		System.err.println(	map.getResult().getCoins());
+
+	
 	}
 
 }
